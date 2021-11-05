@@ -31,7 +31,7 @@
                            <columns>
                               <TableColumn fx:id="dueDateColumn" prefWidth="87.99999845027924" text="due date" />
                               <TableColumn fx:id="descriptionColumn" prefWidth="423.9999771118164" text="Description" />
-                              <TableColumn fx:id="isCompletedColumn" prefWidth="100.80001220703127" text="status" />
+                              <TableColumn fx:id="statusColumn" prefWidth="100.80001220703127" text="status" />
                            </columns>
                         </TableView>
                      </children>

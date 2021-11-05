@@ -8,14 +8,14 @@ package baseline;
 public class TaskObject {
     private String dueDate;
     private String description;
-    private boolean isCompleted;
+    private String status;
 
     public TaskObject(String dueDate, String description) {
         setDueDate(dueDate);
         setDescription(description);
 
         //default, isComplete must be false, it is a nature of todoList
-        isCompleted = false;
+        status = "incomplete";
     }
 
     //setters for the class object
@@ -26,8 +26,8 @@ public class TaskObject {
         //the due date of the task (if any) will be verified in the AddEditWindowController
         this.dueDate = dueDate;
     }
-    public void seIstCompleted(boolean completed) {
-        isCompleted = completed;
+    public void setStatus(String completed) {
+        status = completed;
     }
 
     //getters for the class object
@@ -37,7 +37,7 @@ public class TaskObject {
     public String getDescription() {
         return description;
     }
-    public boolean getIsCompleted() {
-        return isCompleted;
+    public String getStatus() {
+        return status;
     }
 }

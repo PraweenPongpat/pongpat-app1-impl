@@ -29,6 +29,8 @@ public class AddEditWindowController implements Initializable {
     @FXML
     private DatePicker taskDueDateDatePicker;
 
+    private ListWrapper listWrapper = new ListWrapper();
+
     @FXML
     void cancelButtonPushed(ActionEvent event) {
         //if cancel button is pushed, not return new thing to the MainWindow.fxml scene
@@ -111,19 +113,36 @@ public class AddEditWindowController implements Initializable {
         //show the window (run the actual scene changing)
     }
 
+    public void initializeListWrapper(ListWrapper listWrapper) {
+        //this method will be used (as a receiving side) between scene changing
+        this.listWrapper = listWrapper;
+    }
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         //always initialize errorDisplayLabel to ""
+        errorDisplayLabel.setText("");
 
         //always initialize the topic label
         //  check isAdding
-        //  if true     :   set 'topicLabel' as "Add a TodoList Information"
-        //  if false    :   set 'topicLabel' as "Edit a TodoList Information"
+        //  if true     :   set 'topicLabel' as "Add a task Information"
 
-        //these initializations will occur when 'edit' portion is passed.
-        //check isAdding is false (to make sure that it is editing), in the ListWrapper
-        //  always set the date in date picker to NULL
-        //  set the text in taskDueDateTextField using 'dueDate' in the taskObject that was passed in
-        //  set the text in taskInfoTextArea using 'description' in the taskObject that was passed in
+        if(listWrapper.getIsAdding()) {
+            topicLabel.setText("Add a task Information");
+        }
+        //  if false    :   set 'topicLabel' as "Edit a task Information"
+        else {
+            topicLabel.setText("Edit a task Information");
+
+            System.out.println("at addEdit scene, index is "+listWrapper.getIndex());
+
+            //these initializations will occur when 'edit' portion is passed.
+            //check isAdding is false (to make sure that it is editing), in the ListWrapper
+            //  always set the date in date picker to NULL
+            //  set the text in taskDueDateTextField using 'dueDate' in the taskObject that was passed in
+//            taskDueDateTextField.setText(listWrapper.getList().get(listWrapper.getIndex()).getDueDate());
+            //  set the text in taskInfoTextArea using 'description' in the taskObject that was passed in
+//            taskInfoTextArea.setText(listWrapper.getList().get(listWrapper.getIndex()).getDescription());
+        }
     }
 }

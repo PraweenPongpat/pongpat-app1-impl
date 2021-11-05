@@ -12,7 +12,7 @@ public class ListWrapper {
     //this class hold a whole object that will be initialized once, and pass around Controllers
 
     //index, to store index of selected items of the tableView
-    private int index;
+    private int index =-1;
     //isAdding uses as a flag, determine the difference between Add/Edit window
     private boolean isAdding;
     //a list that hold all the task objects
@@ -27,6 +27,9 @@ public class ListWrapper {
         isAdding = adding;
     }
 
+    public void setList(List<TaskObject> list) {
+        this.list = list;
+    }
 
     public int getIndex() {
         return index;
@@ -34,5 +37,9 @@ public class ListWrapper {
 
     public boolean getIsAdding() {
         return isAdding;
+    }
+
+    public List<TaskObject> getList() {
+        return list;
     }
 }
