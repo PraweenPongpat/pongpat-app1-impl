@@ -26,6 +26,8 @@ public class AddEditWindowController implements Initializable {
     private TextField taskDueDateTextField;
     @FXML
     private TextArea taskInfoTextArea;
+    @FXML
+    private DatePicker taskDueDateDatePicker;
 
     @FXML
     void cancelButtonPushed(ActionEvent event) {
@@ -79,7 +81,7 @@ public class AddEditWindowController implements Initializable {
         // call method changeScene to change the Scene
     }
 
-    public boolean datePickerToStringConverter(String validatingDate) {
+    public boolean taskDueDateTextFieldValidator(String validatingDate) {
         //as prompted in the textField, user need to put '-' as well
 
         //from validatingDate, split it with '-' to Strings[]

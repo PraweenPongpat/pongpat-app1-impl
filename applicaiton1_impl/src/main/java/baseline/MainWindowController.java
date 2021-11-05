@@ -17,10 +17,9 @@ import java.util.ResourceBundle;
 import java.util.Scanner;
 
 public class MainWindowController implements Initializable {
+
     public static Scanner input;
-
     public FileChooser fileChooser = new FileChooser();
-
     private ObservableList<TaskObject> observableList;
 
     @FXML
