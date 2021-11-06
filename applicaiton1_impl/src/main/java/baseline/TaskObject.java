@@ -17,6 +17,12 @@ public class TaskObject {
         //default, isComplete must be false, it is a nature of todoList
         status = "incomplete";
     }
+    //method overload the constructor when loading the file
+    public TaskObject(String dueDate, String description,String status) {
+        setDueDate(dueDate);
+        setDescription(description);
+        this.status = status;
+    }
 
     //setters for the class object
     public void setDescription(String description) {

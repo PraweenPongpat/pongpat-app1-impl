@@ -26,11 +26,13 @@ public class AddEditWindowController {
     @FXML
     private Label topicLabel;
     @FXML
+    private Label clearDateLabel;
+    @FXML
     private Label errorDisplayLabel;
     @FXML
     private Label promptDateLabel;
     @FXML
-    private TextArea taskInfoTextArea;
+    private TextArea taskDescriptionTextArea;
     @FXML
     private DatePicker taskDueDateDatePicker = new DatePicker();
 
@@ -67,7 +69,7 @@ public class AddEditWindowController {
          }
 
         //  read the text in the textArea
-        String readTextArea = taskInfoTextArea.getText();
+        String readTextArea = taskDescriptionTextArea.getText();
         //      we also need to validate the string length (1-256 chars)
         if(!descriptionValidator(readTextArea)) {
             //      if string length is greater than 256 char
@@ -78,6 +80,11 @@ public class AddEditWindowController {
             //          exit the method without doing anything else
             //      otherwise, keep proceeding
             errorDisplayLabel.setText("description must be filled with 1-256 characters");
+            return;
+        }
+        if (readTextArea.contains("\n"))
+        {
+            errorDisplayLabel.setText("description cannot have NewLine");
             return;
         }
         //***this point, all validation must be valid***
@@ -158,6 +165,18 @@ public class AddEditWindowController {
             setUpExistedText(listWrapper.getList().get(index).getDueDate(),
                     listWrapper.getList().get(index).getDescription());
         }
+        //always initialize the topic label
+        //  check isAdding
+        //  if true     :   set 'topicLabel' as "Add a task Information"
+        if(listWrapper.getIsAdding()) {
+            topicLabel.setText("Add a task Information");
+        }
+        //  if false    :   set 'topicLabel' as "Edit a task Information"
+        else {
+            topicLabel.setText("Edit a task Information");
+            clearDateLabel.setVisible(true);
+        }
+
     }
 
     public void setUpExistedText(String dueDateString, String descriptionString) {
@@ -169,7 +188,7 @@ public class AddEditWindowController {
         }
 
         if(!descriptionString.equals("")) {
-            taskInfoTextArea.setText(descriptionString);
+            taskDescriptionTextArea.setText(descriptionString);
         }
         promptDateLabel.setText(dueDateString);
     }
@@ -178,16 +197,7 @@ public class AddEditWindowController {
         //always initialize errorDisplayLabel to ""
         errorDisplayLabel.setText("");
         promptDateLabel.setText("");
-        //always initialize the topic label
-        //  check isAdding
-        //  if true     :   set 'topicLabel' as "Add a task Information"
-        if(listWrapper.getIsAdding()) {
-            topicLabel.setText("Add a task Information");
-        }
-        //  if false    :   set 'topicLabel' as "Edit a task Information"
-        else {
-            topicLabel.setText("Edit a task Information");
-        }
+        clearDateLabel.setVisible(false);
         taskDueDateDatePicker.setConverter(new StringConverter<LocalDate>()
         {
             private DateTimeFormatter dateTimeFormatter=DateTimeFormatter.ofPattern("yyyy-MM-dd");

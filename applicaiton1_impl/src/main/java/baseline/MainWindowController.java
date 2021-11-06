@@ -12,23 +12,15 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
-import java.io.IOException;
-import java.net.URL;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
-import java.util.Scanner;
+import java.io.*;
+import java.util.*;
 
 public class MainWindowController {
 
@@ -68,15 +60,13 @@ public class MainWindowController {
     private Label errorDisplayLabel;
 
     //needed variables****
-    public static Scanner input;
+    public Scanner input;
     public FileChooser fileChooser = new FileChooser();
     private ObservableList<TaskObject> observableList;
-    //as of now that i can't fully figure out, i will plan according to use static
-    //i should be able to NOT use static list, in an actual implementation
-    public ListWrapper listWrapper = new ListWrapper();
-    public int tempIndex = -1;
-    //static list variable 'todoList' to ensure that there will only be one list across the program
-    //static taskChecker, used to pass information as a flag for specific tasks
+    private ListWrapper listWrapper = new ListWrapper();
+    private int tempIndex = -1;
+    private File file;
+
 
     @FXML
     void addNewTaskButtonPushed(ActionEvent event) throws IOException {
@@ -95,7 +85,7 @@ public class MainWindowController {
         //this button should only be visible when any task is selected
 
         //if nothing is selected from the tableView
-        if(listWrapper.getIndex()<0) {
+        if(listWrapper.getIndex()<0 || tempIndex<0) {
             //  set the errorDisplayLabel prompting user "you must select a task to edit its information"
             errorDisplayLabel.setText("you must select a task to edit its information");
             //  exit method, doing nothing else
@@ -122,7 +112,7 @@ public class MainWindowController {
     void makeTaskCompleteButtonPushed(ActionEvent event) {
         //this button should only be visible when selected the task that is incomplete
 
-        if(listWrapper.getIndex()<0) {
+        if(listWrapper.getIndex()<0 || tempIndex<0) {
             //  set the errorDisplayLabel prompting user "you must select a task to proceed..."
             errorDisplayLabel.setText("you must select a task to change its status...");
             //  exit method, doing nothing else
@@ -149,7 +139,7 @@ public class MainWindowController {
         //this button should only be visible when selected the task that is complete
 
         //if nothing is selected from the tableView
-        if(listWrapper.getIndex()<0) {
+        if(listWrapper.getIndex()<0 || tempIndex<0) {
             //  set the errorDisplayLabel prompting user "you must select a task to proceed..."
             errorDisplayLabel.setText("you must select a task to change its status...");
             //  exit method, doing nothing else
@@ -175,7 +165,7 @@ public class MainWindowController {
         //this button should only be visible when any task is selected
 
         //if nothing is selected from the tableView
-        if(listWrapper.getIndex()<0) {
+        if(listWrapper.getIndex()<0 || tempIndex<0) {
             //  set the errorDisplayLabel prompting user "you must select a task to proceed..."
             errorDisplayLabel.setText("you must select a task to remove something...");
             //  exit method, doing nothing else
@@ -259,19 +249,38 @@ public class MainWindowController {
         //when saveButton is pushed
         //uses a FileChooser to get the selected address from user
         //create a file that is pointing to the result of file choosing
-
+        fileChooser.setTitle("save file");
+        fileChooser.setInitialFileName("testFile.txt");
+        file = fileAddressFromFileChooserToSave();
         //if file is null, means that the user didn't pick the file (cancel the choosing)
-        //      end method with return statement
+        if(file == null) {
+            //      end method with return statement
+            //display error that file name cannot be null
+            errorDisplayLabel.setText("save failed, file name must be filled properly");
+            //otherwise, means the user wants to make a file (saving)
+        } else {
+            //set the error to be empty string, since no error occur
+            errorDisplayLabel.setText("");
 
-        //otherwise, means the user wants to make a file (saving)
-        //create a writer (Formatter, BufferWriter works too, leave as options when implement)
-        //write in the following format
-
-        //****************format .txt*********************
-        //#number of items in that todoList
-        //each item:    dueDate,description,status      ---> use comma to separate the things in the object
-        // ...
-        //************************************************
+            //create a writer (Formatter, BufferWriter works too, leave as options when implement)
+            try (Formatter writer = new Formatter(file.toString())) {
+                    //write in the following format
+                    //****************format .txt*********************
+                    //each item:    dueDate ### description ### status ###N ewLine      ---> use "###" to separate the things in the object
+                    // ...
+                    //************************************************
+                    for (int i = 0; i < listWrapper.getList().size(); i++) {
+                        writer.format("%s ### %s ### %s ### %n",
+                                listWrapper.getList().get(i).getDueDate(),
+                                listWrapper.getList().get(i).getDescription(),
+                                listWrapper.getList().get(i).getStatus());
+                    }
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.out.println("FILE CANNOT BE SAVED! something is wrong");
+            }
+            System.out.println("file is saved");
+        }
     }
 
     @FXML
@@ -279,29 +288,58 @@ public class MainWindowController {
         //when loadButton is pushed
         //uses a FileChooser to get the selected address from user
         //set the 'file' for a result from using fileChooser
+        fileChooser.setTitle("load file");
+        file = fileAddressFromFileChooserToLoad();
         //if file is null, means that the user didn't pick the file (cancel the choosing)
-        //      end method with return statement
-
+        if(file == null) {
+            //      end method with return statement
+            errorDisplayLabel.setText("load failed, try again");
+        }
         //otherwise, means the file is NOT null...
-        //create a Scanner and link the Scanner to te path received from FileChooser
-        //start reading the file
-        //loading will reflect in the saving format
+        else {
+            //create a Scanner and link the Scanner to te path received from FileChooser
+            try {
+                input = new Scanner(file);
+                //start reading the file
+                //loading will reflect in the saving format
+                //****************format .txt*********************
+                //each item:    dueDate### description### status### NewLine      ---> use " ### " to separate the things in the object
+                // ...
+                //************************************************
+                //access the list on ListWrapper class, clear all the data in the list using clear()
+                //read one while line at a time
+                //  each line read from rawData, parse it with split comma
+                //  create a taskObject from the parsed data
+                //  add the taskObject into the list
+                listWrapper.getList().clear();
 
-        //****************format .txt*********************
-        //#number of items in that todoList
-        //each item:    dueDate,description,status      ---> use comma to separate the things in the object
-        // ...
-        //************************************************
+                String temp;
+                while(input.hasNext()) {
+                    temp = input.nextLine();
+                    String[] tempArr = temp.split(" ### ");
+                    listWrapper.getList().add(new TaskObject(tempArr[0],tempArr[1],tempArr[2]));
+                }
+                //clear the data in the tableView
+                observableList.clear();
+                //call initialize class again, to refresh the scene
+                observableList = FXCollections.observableArrayList(listWrapper.getList());
+                //this is the update the tableView to the loaded list
+                tableView.setItems(observableList);
+                System.out.println("file is loaded, and replaced the current GUI already");
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
-        //access the list on ListWrapper class, clear all the data in the list using clear()
-        //read one while line at a time
-        //  each line read from rawData, parse it with split comma
-        //  create a taskObject from the parsed data
-        //  add the taskObject into the list
+    public File fileAddressFromFileChooserToSave() {
+        //open another stage to get the address
+        return fileChooser.showSaveDialog(new Stage());
+    }
 
-        //clear the data in the tableView
-        //call initialize class again, to refresh the scene
-        //this is the update the tableView to the loaded list
+    public File fileAddressFromFileChooserToLoad() {
+        //open another stage to get the address
+        return fileChooser.showOpenDialog(new Stage());
     }
 
     //this method may change!!! i haven't figured out yes how controllers are communicating
@@ -339,6 +377,7 @@ public class MainWindowController {
     public void initializeListWrapper(ListWrapper listWrapper) {
         //this method will be used (as a receiving side) between scene changing
         this.listWrapper = listWrapper;
+        tempIndex = -1;
         observableList.clear();
         observableList = FXCollections.observableArrayList(listWrapper.getList());
         tableView.setItems(observableList);
@@ -352,6 +391,8 @@ public class MainWindowController {
         errorDisplayLabel.setText("");
 
         //initialize the 'fileChooser' is optional, maybe do it here if wanted to
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("text files","*.txt"));
+        fileChooser.setInitialDirectory(new File("data"));
 
         //set the observableList to the list that we have in the ListWrapper (same structure, same data)
         //      if list is used as reference, may not be able to set directly
