@@ -7,13 +7,18 @@ package baseline;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.stage.Stage;
+import javafx.util.StringConverter;
 
-import java.net.URL;
-import java.util.ResourceBundle;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
-public class AddEditWindowController implements Initializable {
+public class AddEditWindowController {
     @FXML
     private Button cancelButton;
     @FXML
@@ -23,18 +28,22 @@ public class AddEditWindowController implements Initializable {
     @FXML
     private Label errorDisplayLabel;
     @FXML
-    private TextField taskDueDateTextField;
+    private Label promptDateLabel;
     @FXML
     private TextArea taskInfoTextArea;
     @FXML
-    private DatePicker taskDueDateDatePicker;
+    private DatePicker taskDueDateDatePicker = new DatePicker();
+
+    private LocalDate date;
 
     private ListWrapper listWrapper = new ListWrapper();
+    private int index;
 
     @FXML
     void cancelButtonPushed(ActionEvent event) {
         //if cancel button is pushed, not return new thing to the MainWindow.fxml scene
         // call method changeScene to change the Scene
+        changeScene("MainWindow.fxml");
     }
 
     @FXML
@@ -45,58 +54,65 @@ public class AddEditWindowController implements Initializable {
 
         //read the text in textField, or datePicker
         //  read due dueDate <<datePicker takes over taskDueDateTextField>>
-        //  if the LocalDate from datePicker is NOT null
+        //  the LocalDate from datePicker is NOT null
         //      read the LocalDate from datePicker
         //      convert the local date into string format as required
         //      format is YYYY-MM-DD as a string (will be stored in the ListWrapper object as a string)
-        //      Local date from datePicker will already be tested from the API
-        //  else if the LocalDate from datePicker is null, and the taskDueDateTextField is NOT null
-        //      we need to do validation on the string using the validator method
-        //      the method takes in a string read from textField, return a boolean represent validation result
-        //  else if both datePicker is null, textField is null
-        //      this is okay, the dueDate is optional
-
-        //  if validationResult is false
-        //      set errorDisplayLabel prompting user the format date "date format must be YYYY-MM-DD, including '-'"
-        //      exit method without doing anything else
-        //  otherwise, keep proceeding
+        //      Local date from datePicker will already be tested from the API, to test this, use the data in label
+        String newDate;
+         if(date == null){
+             newDate = "";
+         } else {
+             newDate = date.toString();
+         }
 
         //  read the text in the textArea
+        String readTextArea = taskInfoTextArea.getText();
         //      we also need to validate the string length (1-256 chars)
-        //      if string length is greater than 256 char
-        //          set errorDisplayLabel prompting user "maximum description is 256 characters"
-        //          exit the method without doing anything else
-        //      if the string is empty
-        //          set errorDisplayLabel prompting user "description area must be filled"
-        //          exit the method without doing anything else
-        //      otherwise, keep proceeding
+        if(!descriptionValidator(readTextArea)) {
+            //      if string length is greater than 256 char
+            //          set errorDisplayLabel prompting user "maximum description is 256 characters"
+            //          exit the method without doing anything else
+            //      if the string is empty
+            //          set errorDisplayLabel prompting user "description area must be filled"
+            //          exit the method without doing anything else
+            //      otherwise, keep proceeding
+            errorDisplayLabel.setText("description must be filled with 1-256 characters");
+            return;
+        }
         //***this point, all validation must be valid***
 
         //check the ListWrapper, for isAdding
         //  if isAdding is true, means we are adding a new taskObject to the list
-        //      create a new taskObject and add the task to the list
+        if(listWrapper.getIsAdding()) {
+            //      create a new taskObject and add the task to the list
+            listWrapper.getList().add(new TaskObject(newDate,readTextArea));
+        }
         //  else, means we are editing
-        //      access the 'index' in the ListWrapper (represent the index if the list we are editing)
-        //      use setDueDate to set an edited date as a String in that index
-        //      use setDescription to set edited description as a String in that index
-
+        else {
+            //      access the 'index' in the ListWrapper (represent the index if the list we are editing)
+            //      use setDueDate to set an edited date as a String in that index
+            listWrapper.getList().get(index).setDueDate(newDate);
+            //      use setDescription to set edited description as a String in that index
+            listWrapper.getList().get(index).setDescription(readTextArea);
+        }
         // call method changeScene to change the Scene
+        changeScene("MainWindow.fxml");
     }
 
-    public boolean taskDueDateTextFieldValidator(String validatingDate) {
-        //as prompted in the textField, user need to put '-' as well
+    @FXML
+    void datePickerSelected(ActionEvent event) {
+        //the onAction event when user selected a date from date picker
+        //set date to the value
+        date = taskDueDateDatePicker.getValue();
+    }
 
-        //from validatingDate, split it with '-' to Strings[]
-        //element 0, MUST be a 4 digit positive integer that is less than 2022 (next year)
-        //element 1, MUST be a positive integer that is from 1 to 12 (months)
-        //element 2, MUST be a positive integer, check element2 (number of days depend on the month)
-        //      if element 2 is 1,3,5,7,8,10,12     element 3 will be from 1-31
-        //      if element 2 is 4,6,9,11            element 3 will be from 1-30
-        //      if element 2 is 2                   element 3 will be from 1-28 (max at 28 for simplicity)
-
-        //if all validating passed, return true
-        //otherwise, return false
-        return false;
+    public boolean descriptionValidator (String string) {
+        //description must be 1-256 chars, cannot be empty
+        //first, check if the string is null or empty
+        if(string.equals("")) {
+            return false;
+        } else return string.length() >= 1 && string.length() <= 256;
     }
 
     //this method may change!!! I haven't figured out yes how controllers are communicating
@@ -111,38 +127,88 @@ public class AddEditWindowController implements Initializable {
         //create a stage class 'window'
         //set the 'window' by setScene with 'scene'
         //show the window (run the actual scene changing)
+
+        FXMLLoader loader = new FXMLLoader(getClass().getResource(fileNameFXML));
+        Parent root = null;
+        try {
+            root = loader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("something is wrong, parent is null.");
+        }
+
+        MainWindowController controller = loader.getController();
+        controller.initializeListWrapper(listWrapper);
+        assert root != null;
+        Scene mainWindowScene = new Scene(root);
+
+        Stage window = (Stage) errorDisplayLabel.getScene().getWindow();
+        window.setScene(mainWindowScene);
+        window.show();
+
     }
 
-    public void initializeListWrapper(ListWrapper listWrapper) {
+    public void initializeListWrapper(ListWrapper listWrapper, int index) {
         //this method will be used (as a receiving side) between scene changing
         this.listWrapper = listWrapper;
+        this.index = index;
+        if(listWrapper.getIsAdding()) {
+            setUpExistedText("","");
+        } else {
+            setUpExistedText(listWrapper.getList().get(index).getDueDate(),
+                    listWrapper.getList().get(index).getDescription());
+        }
     }
 
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
+    public void setUpExistedText(String dueDateString, String descriptionString) {
+        //set up the text in the boxes when editing
+        if(!dueDateString.equals("")){
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            LocalDate tempDate = LocalDate.parse(dueDateString,dateTimeFormatter);
+            taskDueDateDatePicker.setValue(tempDate);
+        }
+
+        if(!descriptionString.equals("")) {
+            taskInfoTextArea.setText(descriptionString);
+        }
+        promptDateLabel.setText(dueDateString);
+    }
+
+    public void initialize() {
         //always initialize errorDisplayLabel to ""
         errorDisplayLabel.setText("");
-
+        promptDateLabel.setText("");
         //always initialize the topic label
         //  check isAdding
         //  if true     :   set 'topicLabel' as "Add a task Information"
-
         if(listWrapper.getIsAdding()) {
             topicLabel.setText("Add a task Information");
         }
         //  if false    :   set 'topicLabel' as "Edit a task Information"
         else {
             topicLabel.setText("Edit a task Information");
-
-            System.out.println("at addEdit scene, index is "+listWrapper.getIndex());
-
-            //these initializations will occur when 'edit' portion is passed.
-            //check isAdding is false (to make sure that it is editing), in the ListWrapper
-            //  always set the date in date picker to NULL
-            //  set the text in taskDueDateTextField using 'dueDate' in the taskObject that was passed in
-//            taskDueDateTextField.setText(listWrapper.getList().get(listWrapper.getIndex()).getDueDate());
-            //  set the text in taskInfoTextArea using 'description' in the taskObject that was passed in
-//            taskInfoTextArea.setText(listWrapper.getList().get(listWrapper.getIndex()).getDescription());
         }
+        taskDueDateDatePicker.setConverter(new StringConverter<LocalDate>()
+        {
+            private DateTimeFormatter dateTimeFormatter=DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+            @Override
+            public String toString(LocalDate localDate)
+            {
+                if(localDate==null)
+                    return "";
+                return dateTimeFormatter.format(localDate);
+            }
+
+            @Override
+            public LocalDate fromString(String dateString)
+            {
+                if(dateString==null || dateString.trim().isEmpty())
+                {
+                    return null;
+                }
+                return LocalDate.parse(dateString,dateTimeFormatter);
+            }
+        });
     }
 }

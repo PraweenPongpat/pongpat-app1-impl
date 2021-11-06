@@ -24,12 +24,13 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Scanner;
 
-public class MainWindowController implements Initializable {
+public class MainWindowController {
 
     @FXML
     private Button addNewTaskButton;
@@ -72,7 +73,8 @@ public class MainWindowController implements Initializable {
     private ObservableList<TaskObject> observableList;
     //as of now that i can't fully figure out, i will plan according to use static
     //i should be able to NOT use static list, in an actual implementation
-    ListWrapper listWrapper = new ListWrapper();
+    public ListWrapper listWrapper = new ListWrapper();
+    public int tempIndex = -1;
     //static list variable 'todoList' to ensure that there will only be one list across the program
     //static taskChecker, used to pass information as a flag for specific tasks
 
@@ -89,7 +91,7 @@ public class MainWindowController implements Initializable {
     }
 
     @FXML
-    void editTaskButtonPushed(ActionEvent event) throws IOException {
+    void editTaskButtonPushed(ActionEvent event){
         //this button should only be visible when any task is selected
 
         //if nothing is selected from the tableView
@@ -107,7 +109,12 @@ public class MainWindowController implements Initializable {
             //  this means that for editing, index will always be 0 or greater
             //call the changeScene function, to change the scene to AddEditWindow.fxml
             //  note that when edit task, the AddEditWindow will initialize the existed information of the task
-            changeScene("AddEditWindow.fxml");
+
+            try {
+                changeScene("AddEditWindow.fxml");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -160,7 +167,6 @@ public class MainWindowController implements Initializable {
             observableList.clear();
             observableList = FXCollections.observableArrayList(listWrapper.getList());
             tableView.setItems(observableList);
-
         }
     }
 
@@ -173,15 +179,15 @@ public class MainWindowController implements Initializable {
             //  set the errorDisplayLabel prompting user "you must select a task to proceed..."
             errorDisplayLabel.setText("you must select a task to remove something...");
             //  exit method, doing nothing else
-            return;
         } else {
             //  set the errorDisplayLabel to empty String, since no error occur
             errorDisplayLabel.setText("");
 
             //with the current 'index' from ListWrapper class variable
             // .remove to remove that task out of the list
-            observableList.remove(listWrapper.getIndex());
-            listWrapper.getList().remove(listWrapper.getIndex());
+            listWrapper.getList().remove(tempIndex);
+            observableList.remove(tempIndex);
+
 
             //refresh this scene again, or call the changeScene function passing the same .fxml
             //(to reload the updated list)
@@ -300,7 +306,6 @@ public class MainWindowController implements Initializable {
 
     //this method may change!!! i haven't figured out yes how controllers are communicating
     private void changeScene(String fileNameFXML) throws IOException {
-        System.out.println("at mainWindowScene, index is "+listWrapper.getIndex());
 
         //this function is used to navigate/change scene
         //the function has to pre-load the scene information to the other scene to pass parameters to the next scene
@@ -311,40 +316,40 @@ public class MainWindowController implements Initializable {
         //set the 'window' by setScene with 'scene'
         //show the window (run the actual scene changing)
 
-        FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource(fileNameFXML));
-        Parent mainWindowParent = loader.load();
-
-        Scene mainWindowScene = new Scene(mainWindowParent);
+        FXMLLoader loader = new FXMLLoader(getClass().getResource(fileNameFXML));
+        Parent root = null;
+        try {
+            root = loader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("something is wrong, parent is null.");
+        }
 
         AddEditWindowController controller = loader.getController();
-        controller.initializeListWrapper(listWrapper);
+        controller.initializeListWrapper(listWrapper,tempIndex);
+        assert root != null;
+        Scene mainWindowScene = new Scene(root);
 
-
-        Stage window = (Stage) editTaskButton.getScene().getWindow();
+        Stage window = (Stage) errorDisplayLabel.getScene().getWindow();
         window.setScene(mainWindowScene);
         window.show();
+
     }
 
-    private void initializeListWrapper(ListWrapper listWrapper) {
+    public void initializeListWrapper(ListWrapper listWrapper) {
         //this method will be used (as a receiving side) between scene changing
         this.listWrapper = listWrapper;
+        observableList.clear();
+        observableList = FXCollections.observableArrayList(listWrapper.getList());
+        tableView.setItems(observableList);
     }
 
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
+    public void initialize() {
         //the scene will always be re-initialize every time
         //this is needed, because the tableView needs to refresh for add/remove/edit
 
         //always initialize the errorDisplayLabel by set it to ""
         errorDisplayLabel.setText("");
-
-        //hide buttons, until user pick/clicked at the item in the list
-        //      this is optional, maybe I will just leave it, and display error through a label for user instead
-        //set editTaskButton to not visible
-        //set removeTaskButton to not visible
-        //set makeTaskCompleteButton to not visible
-        //set makeTaskIncompleteButton to not visible
 
         //initialize the 'fileChooser' is optional, maybe do it here if wanted to
 
@@ -352,12 +357,8 @@ public class MainWindowController implements Initializable {
         //      if list is used as reference, may not be able to set directly
         //      linearly traverse through the list, copy the data if needed
         //the observableList will be the list that communicates with the tableView, not the list in ListWrapper
-
-
-        listWrapper.getList().add(new TaskObject("1111-11-11","testDescription 1"));
-        listWrapper.getList().add(new TaskObject("2222-22-22","testDescription 2"));
-        listWrapper.getList().add(new TaskObject("3333-33-33","testDescription 3"));
-        listWrapper.getList().add(new TaskObject("4444-44-44","testDescription 4"));
+        for(int i = 1; i<102;i++)
+            listWrapper.getList().add(new TaskObject("1111-01-11","object#"+i));
 
         observableList = FXCollections.observableArrayList(listWrapper.getList());
 
@@ -370,7 +371,8 @@ public class MainWindowController implements Initializable {
         tableView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-                listWrapper.setIndex(observableList.indexOf(tableView.getSelectionModel().getSelectedItem()));
+                tempIndex = observableList.indexOf(tableView.getSelectionModel().getSelectedItem());
+                listWrapper.setIndex(tempIndex);
             }
         });
 
