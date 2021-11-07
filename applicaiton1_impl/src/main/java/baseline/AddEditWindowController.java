@@ -39,7 +39,7 @@ public class AddEditWindowController {
     //declare variables  as needed
     private LocalDate date;
     private ListWrapper listWrapper = new ListWrapper();
-    private int index;
+    private int index = -1;
 
     @FXML
     void cancelButtonPushed() {
@@ -51,16 +51,15 @@ public class AddEditWindowController {
     @FXML
     void doneButtonPushed() {
         //when the doneButton is pushed
-
         //need to validate 'dueDate' before returning as editing/adding to a taskObject (if exists)
         //read the text in textField, or datePicker (will be onAction)
         //      LocalDate from datePicker will already be tested from the API, to test this, use the data in label
         String newDate;
-         if(date == null){
-             newDate = "";
-         } else {
+        if (date == null){
+            newDate = "";
+        } else {
              newDate = date.toString();
-         }
+        }
          //make sure the format of the date is correct
         if(!validateDateFormat(newDate)) {
             errorDisplayLabel.setText("the date format is wrong!");
@@ -137,7 +136,6 @@ public class AddEditWindowController {
         try {
             root = loader.load();
         } catch (IOException e) {
-            e.printStackTrace();
             System.out.println("something is wrong, parent is null.");
         }
         //create a controller to pointing to the receiving class, @initialize will partially set up the scene
@@ -180,12 +178,6 @@ public class AddEditWindowController {
     //a helper method used to set up existed data
     public void setUpExistedText(String dueDateString, String descriptionString) {
         //set up the text in the boxes when editing
-        //dueDate is optional, only set up when existed
-        if(!dueDateString.equals("")){
-            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            LocalDate tempDate = LocalDate.parse(dueDateString,dateTimeFormatter);
-            taskDueDateDatePicker.setValue(tempDate);
-        }
         //set up existed description
         //prompt the label wheat is a current date selected
         taskDescriptionTextArea.setText(descriptionString);
@@ -201,8 +193,8 @@ public class AddEditWindowController {
         String[] result = date.split("-");
         if (result[0].length() == 4 && result[1].length() == 2 && result[2].length() == 2) {
             try {
-                for(int i = 0; i< result.length;i++){
-                    Integer.parseInt(result[i]);
+                for (String s : result) {
+                    Integer.parseInt(s);
                 }
                 return true;
             } catch (NumberFormatException e){
@@ -216,9 +208,9 @@ public class AddEditWindowController {
     public boolean itemExistingValidation(List<TaskObject> list, String dueDateString, String descriptionString) {
         //check if the item already existed
         //if the item existed, display error message and don't do anything else
-        for(int i = 0; i<list.size();i++) {
-            if(list.get(i).getDueDate().equals(dueDateString)
-                    && list.get(i).getDescription().equals(descriptionString)) {
+        for (TaskObject taskObject : list) {
+            if (taskObject.getDueDate().equals(dueDateString)
+                    && taskObject.getDescription().equals(descriptionString)) {
                 return true;
             }
         }

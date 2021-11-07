@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class ListWrapperTest {
     ListWrapper listWrapper = new ListWrapper();
 
-    @Test
+    @Test   //test according to requirements#4
     void addItemToListTest() {
         //this is a helper method used when adding a task to the list
         //used in AddEditWindowController, when doneButtonPushed
@@ -23,7 +23,7 @@ class ListWrapperTest {
         assertEquals(2,listWrapper.getList().size());
     }
 
-    @Test
+    @Test   //test according to requirements#5
     void removeItemFromList() {
         //this is a helper method used when removing a data from list
         //used in MainWindowController, when removeButtonPushed
@@ -39,7 +39,7 @@ class ListWrapperTest {
         assertEquals(1,listWrapper.getList().size());
     }
 
-    @Test
+    @Test   //test according to requirements#6
     void clearAllItemsFromListTest() {
         //this is a helper method used when clearing All data in the list
         //used in MainWindowController, when clearButtonPushed
@@ -55,7 +55,7 @@ class ListWrapperTest {
         assertEquals(0,listWrapper.getList().size());
     }
 
-    @Test
+    @Test   //test according to requirements#8
     void editDueDateOfItemsTest() {
         //this is a helper method used when editing a dueDate
         //used in AddEditWindowController, when doneButtonPushed
@@ -68,7 +68,7 @@ class ListWrapperTest {
         assertEquals("2222-22-22",listWrapper.getList().get(0).getDueDate());
     }
 
-    @Test
+    @Test    //test according to requirements#7
     void editDescriptionOfItemsTest() {
         //this is a helper method used when editing a description
         //used in AddEditWindowController, when doneButtonPushed
@@ -81,7 +81,7 @@ class ListWrapperTest {
         assertEquals("test2test2test2",listWrapper.getList().get(1).getDueDate());
     }
 
-    @Test
+    @Test   //test according to requirements#9
     void changeStatusOfItemTest() {
         //this is a helper method used when changing a status of item in the list
         //used in MainWindowController, when mark completed button is pushed

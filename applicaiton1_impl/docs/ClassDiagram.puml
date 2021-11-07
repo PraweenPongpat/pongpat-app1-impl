@@ -115,6 +115,7 @@ class AddEditWindowController {
 TodoListApplication -- MainWindowController
 MainWindowController -- AddEditWindowController
 MainWindowController --- ListWrapper
+MainWindowController -- TaskObject
 AddEditWindowController -- ListWrapper
 ListWrapper -- TaskObject
 @enduml

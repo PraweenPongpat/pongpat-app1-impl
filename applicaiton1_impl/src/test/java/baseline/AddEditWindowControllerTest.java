@@ -14,7 +14,7 @@ class AddEditWindowControllerTest {
     private final ListWrapper listWrapper = new ListWrapper();
     AddEditWindowController addEditWindowController = new AddEditWindowController();
 
-    @Test
+    @Test   //test according to requirements#2
     void descriptionTest () {
         //this is a helper method just to validate the description length
         //i used this in within the doneButtonPushed
@@ -32,9 +32,11 @@ class AddEditWindowControllerTest {
                 "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"));
     }
 
-    @Test
+    @Test   //test according to requirements#3
     void dateFormatTest () {
         //this is a helper method just to validate the format of the date
+        //input date will automatically be tested valid from using datePicker API
+        //only need to test how the information is parsed and stored
         //I used this in within the doneButtonPushed
         //expected false, wrong format
         assertFalse(addEditWindowController.validateDateFormat("AA-AA-AAAA"));
@@ -47,7 +49,7 @@ class AddEditWindowControllerTest {
         assertTrue(addEditWindowController.validateDateFormat(""));
     }
 
-    @Test
+    @Test   //test according to requirements#1
     void uniqueItemTest() {
         //this is a helper method just to validate that items must be unique
         //I used this in within the doneButtonPushed

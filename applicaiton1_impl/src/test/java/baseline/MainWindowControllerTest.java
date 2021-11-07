@@ -34,7 +34,7 @@ class MainWindowControllerTest {
         listWrapper.markItemAsCompleted(4);
     }
 
-    @Test
+    @Test   //test according to requirements#1
     void atLastHundredItemTest (){
         //the validation of having a unique item will be tested separately
         //add more than 100 items and check if the item 101 or more exists on both actual object and listener object
@@ -50,7 +50,7 @@ class MainWindowControllerTest {
         assertTrue(tableViewObjectSize);
     }
 
-    @Test
+    @Test   //test according to requirements#10
     void displayAllTest() {
         //this is the test on observableList (since the actual list will not change)
         //that it displays All items
@@ -65,7 +65,7 @@ class MainWindowControllerTest {
         assertEquals(5,observableList.size());
     }
 
-    @Test
+    @Test   //test according to requirements#12
     void displayCompletedOnlyTest() {
         //this is the test on observableList (since the actual list will not change)
         //that it displays Completed items only
@@ -80,7 +80,7 @@ class MainWindowControllerTest {
         assertEquals(2,observableList.size());
     }
 
-    @Test
+    @Test   //test according to requirements#11
     void displayIncompleteOnlyTest() {
         //this is the test on observableList (since the actual list will not change)
         //that it displays Completed items only
@@ -95,7 +95,7 @@ class MainWindowControllerTest {
         assertEquals(3,observableList.size());
     }
 
-    @Test
+    @Test   //test according to requirements#13
     void safeFileToLocalSpaceTest() {
         //this is the test on observableList (since the actual list will not change)
         //that it displays Completed items only
@@ -111,7 +111,7 @@ class MainWindowControllerTest {
         assertTrue(Files.exists(Path.of("data\\saveTest.txt")));
     }
 
-    @Test
+    @Test   //test according to requirements#14
     void loadFileFromLocalSpaceTest() {
         //to test the load file, first, save another file into data directory
         //then read it back to compare with the original data

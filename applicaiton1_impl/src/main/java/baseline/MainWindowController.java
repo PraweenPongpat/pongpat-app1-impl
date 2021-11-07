@@ -277,11 +277,18 @@ public class MainWindowController {
             //create a Scanner and link the Scanner to te path received from FileChooser
             //clear the actual list
             listWrapper.getList().clear();
+            observableList.clear();
             //set the actual list to the newly read data
             List<TaskObject> tempList = loadFromLocalDrive(file);
+            if(tempList.isEmpty()){
+                errorDisplayLabel.setText("the file is empty, or contaminated: file cannot be opened");
+                return;
+            }
             for (TaskObject taskObject : tempList) {
                 listWrapper.addToList(taskObject);
             }
+            //set the errorLabel back to emptyString
+            errorDisplayLabel.setText("");
             //call initialize class again, to refresh the scene
             observableList = FXCollections.observableArrayList(listWrapper.getList());
             //this is the update the tableView to the loaded list
@@ -453,12 +460,15 @@ public class MainWindowController {
             while (input.hasNext()) {
                 temp = input.nextLine();
                 String[] tempArr = temp.split(" ### ");
+                if(tempArr.length!=3) {
+                    throw new ArrayIndexOutOfBoundsException();
+                }
                 res.add(new TaskObject(tempArr[0], tempArr[1], tempArr[2]));
             }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            return res;
+        } catch (FileNotFoundException | ArrayIndexOutOfBoundsException e) {
             System.out.println("something is wrong, load unsuccessfully");
         }
-        return res;
+        return Collections.emptyList();
     }
 }
