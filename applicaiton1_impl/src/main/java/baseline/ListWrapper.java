@@ -42,4 +42,32 @@ public class ListWrapper {
     public List<TaskObject> getList() {
         return list;
     }
+
+    public void addToList(TaskObject task) {
+        list.add(task);
+    }
+
+    public void clearList() {
+        list.clear();
+    }
+
+    public void removeItemFromList (int index) {
+        list.remove(index);
+    }
+
+    public void editDescription (int index,String newDescription) {
+        list.get(index).setDescription(newDescription);
+    }
+
+    public void editDueDate (int index,String newDate) {
+        list.get(index).setDueDate(newDate);
+    }
+
+    public void markItemAsCompleted (int index) {
+        list.get(index).setStatus("completed");
+    }
+
+    public void markItemAsIncomplete (int index) {
+        list.get(index).setStatus("incomplete");
+    }
 }
