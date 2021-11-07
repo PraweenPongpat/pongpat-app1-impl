@@ -16,7 +16,6 @@ public class ListWrapper {
     //isAdding uses as a flag, determine the difference between Add/Edit window
     private boolean isAdding;
     //a list that hold all the task objects
-    // after i can figure out how to pass information around and NOT use static list mentioned
     private List<TaskObject> list = new ArrayList<>();
 
     public void setIndex(int index) {

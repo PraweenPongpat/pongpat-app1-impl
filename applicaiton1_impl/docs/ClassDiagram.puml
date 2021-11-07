@@ -8,82 +8,113 @@ class ListWrapper {
     - int index
     - boolean isAdding
     - List<TaskObject> list
-    + void setIndex(int index)
-    + void setAdding(boolean adding)
+    + setIndex(int index)
+    + setAdding(boolean adding)
+    + setList(List<TaskObject>)
     + int getIndex()
     + boolean getIsAdding()
+    + List<TaskObject> getList()
+    + addToList()
+    + clearList()
+    + removeFromList()
+    + editDescription()
+    + editDueDate()
+    + markAsCompleted()
+    + markAsIncomplete()
 }
 
 class TaskObject {
     - String dueDate
     - String description
-    - boolean isCompleted
+    - String status
     + TaskObject(String, String)
+    + TaskObject(String, String, String)
     + void setDescription(String)
     + void setDueDate(String)
-    + void seIstCompleted(boolean)
+    + void setStatus(String)
     + String getDueDate()
     + String getDescription()
-    + boolean getIsCompleted()
+    + String getStatus()
 }
 
 class MainWindowController {
-    + Scanner input
-    + FileChooser fileChooser
+    - File file
+    - FileChooser fileChooser
+    - int tempIndex
+    - ListWrapper listWrapper
     - ObservableList<TaskObject>
 
     - @FXML Button addNewTaskButton
-    - @FXML TableColumn<?, ?> descriptionColumn
-    - @FXML TableColumn<?, ?> dueDateColumn
-    - @FXML TableColumn<?, ?> isCompletedColumn
     - @FXML Button clearListButton
     - @FXML Button editTaskButton
+    - @FXML Button loadButton
     - @FXML Button makeTaskCompleteButton
     - @FXML Button makeTaskIncompleteButton
     - @FXML Button removeTaskButton
-    - @FXML TableView<?> tableView
-    - @FXML Button loadButton
     - @FXML Button saveButton
+    - @FXML Label errorDisplayLabel
     - @FXML RadioButton displayAllRadioButton
     - @FXML RadioButton displayCompletedRadioButton
     - @FXML RadioButton displayIncompleteRadioButton
+    - @FXML TableColumn descriptionColumn
+    - @FXML TableColumn dueDateColumn
+    - @FXML TableColumn isCompletedColumn
+    - @FXML TableView tableView
     - @FXML ToggleGroup displayModes
-    - @FXML Label errorDisplayLabel
 
-    + @FXML addNewTaskButtonPushed(ActionEvent event)
-    + @FXML editTaskButtonPushed(ActionEvent event)
-    + @FXML makeTaskCompleteButtonPushed(ActionEvent event)
-    + @FXML makeTaskIncompleteButtonPushed(ActionEvent event)
-    + @FXML removeTaskButtonPushed(ActionEvent event)
-    + @FXML clearListButtonPushed(ActionEvent event)
-    + @FXML displayAllRadioButtonPushed(ActionEvent event)
-    + @FXML displayCompletedRadioButtonPushed(ActionEvent event)
-    + @FXML displayIncompleteRadioButtonPushed(ActionEvent event)
-    + @FXML saveButtonPushed(ActionEvent event)
-    + @FXML loadButtonPushed(ActionEvent event)
+    + @FXML addNewTaskButtonPushed()
+    + @FXML editTaskButtonPushed()
+    + @FXML makeTaskCompleteButtonPushed()
+    + @FXML makeTaskIncompleteButtonPushed()
+    + @FXML removeTaskButtonPushed()
+    + @FXML clearListButtonPushed()
+    + @FXML sortByDateButtonPushed()
+    + @FXML displayAllRadioButtonPushed()
+    + @FXML displayCompletedRadioButtonPushed()
+    + @FXML displayIncompleteRadioButtonPushed()
+    + @FXML saveButtonPushed()
+    + @FXML loadButtonPushed()
+    + File fileAddressFromFileChooserToSave()
+    + File fileAddressFromFileChooserToLoad()
+    + void initializeListWrapper(ListWrapper)
     - int getIndexOfSelectedItemInTableView()
-    - changeScene(String fileNameFXML)
-    + @Override initialize(URL location, ResourceBundle resources)
+    - changeScene()
+    + initialize()
+    + List<TaskObject> displayAllTasksFilterHelper(List<TaskObject>)
+    + List<TaskObject> displayCompleteTasksFilterHelper(List<TaskObject>)
+    + List<TaskObject> displayIncompleteTasksFilterHelper(List<TaskObject>)
+    + saveToLocalDriveHelper(File, List<TaskObject>)
+    + List<TaskObject> loadFromLocalDrive(File)
+
 }
 class AddEditWindowController {
     - @FXML Button cancelButton
     - @FXML Button doneButton
     - @FXML Label topicLabel
+    - @FXML Label clearDateLabel
     - @FXML Label errorDisplayLabel
-    - @FXML TextField taskDueDateTextField
-    - @FXML TextArea taskInfoTextArea
+    - @FXML Label promptDateLabel
+    - @FXML TextArea taskDescriptionTextArea
     - @FXML DatePicker taskDueDateDatePicker
+    - LocalDate due
+    - ListWrapper listWrapper
+    - int index
 
-    + @FXML cancelButtonPushed(ActionEvent event)
-    + @FXML doneButtonPushed(ActionEvent event)
-    + boolean taskDueDateTextFieldValidator(String)
-    - changeScene(String fileNameFXML)
-    + @Override initialize(URL location, ResourceBundle resources)
+    + @FXML cancelButtonPushed()
+    + @FXML doneButtonPushed()
+    + @FXML datePickerSelected()
+    + boolean descriptionValidator (String)
+    - changeScene()
+    + initializeListWrapper(ListWrapper)
+    + setUpExistedText(String, String)
+    + boolean validateDateFormat(String)
+    + boolean itemExistingValidation(List<TaskObject>, String, String)
+    + initialize()
 }
 
 TodoListApplication -- MainWindowController
 MainWindowController -- AddEditWindowController
-MainWindowController -- ListWrapper
+MainWindowController --- ListWrapper
 AddEditWindowController -- ListWrapper
 ListWrapper -- TaskObject
 @enduml
