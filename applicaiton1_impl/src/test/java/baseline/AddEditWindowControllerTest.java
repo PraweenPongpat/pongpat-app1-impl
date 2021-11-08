@@ -60,11 +60,11 @@ class AddEditWindowControllerTest {
         //attempt to add an existing item to the list
         //the expected value will be true, since the item already existed
         assertTrue(addEditWindowController.itemExistingValidation(
-                listWrapper.getList(),"1111-11-11","sample task1"));
+                listWrapper.getList(),"1111-11-11","sample task1",0,true));
 
         //the validation for non-existed item will have expected value to be false
         assertFalse(addEditWindowController.itemExistingValidation(
-                listWrapper.getList(),"1111-11-13","sample task3"));
+                listWrapper.getList(),"1111-11-13","sample task3",0,true));
     }
 
 }

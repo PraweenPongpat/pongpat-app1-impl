@@ -86,7 +86,7 @@ public class AddEditWindowController {
         //#########################################
         //check if the item already existed
         //if the item existed, display error message and don't do anything else
-        if(itemExistingValidation(listWrapper.getList(),newDate,readTextArea)){
+        if(itemExistingValidation(listWrapper.getList(),newDate,readTextArea,index,listWrapper.getIsAdding())){
             errorDisplayLabel.setText("this exact task already existed in your list");
             return;
         }
@@ -205,12 +205,21 @@ public class AddEditWindowController {
     }
 
     //this method is to validate if the item with exact same dueDate and description already exists
-    public boolean itemExistingValidation(List<TaskObject> list, String dueDateString, String descriptionString) {
+    public boolean itemExistingValidation(List<TaskObject> list, String dueDateString,
+                                          String descriptionString, int index, boolean isAdding) {
         //check if the item already existed
         //if the item existed, display error message and don't do anything else
-        for (TaskObject taskObject : list) {
-            if (taskObject.getDueDate().equals(dueDateString)
-                    && taskObject.getDescription().equals(descriptionString)) {
+        if (checkExisted(list, dueDateString, descriptionString)) {
+            return isAdding || !list.get(index).getDescription().equals(descriptionString)
+                    || !list.get(index).getDueDate().equals(dueDateString);
+        }
+
+        return false;
+    }
+
+    private boolean checkExisted(List<TaskObject> list, String dueDateString, String descriptionString) {
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).getDescription().equals(descriptionString) && list.get(i).getDueDate().equals(dueDateString)) {
                 return true;
             }
         }
